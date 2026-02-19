@@ -1,34 +1,27 @@
-/* Add this to your style.css to fix the 'frozen' feel */
-
-.horizontal-list {
-    display: flex;
-    overflow-x: auto !important; /* Forces the scroll */
-    overflow-y: hidden;
-    gap: 15px;
-    padding: 10px 15px;
-    -webkit-overflow-scrolling: touch; /* Smooth scroll for mobile */
-    scroll-snap-type: x mandatory;
-}
-
-.movie-card {
-    min-width: 130px;
-    scroll-snap-align: start;
-    pointer-events: auto !important; /* Ensures clicks work */
-}
-
-/* Ensure the modal doesn't block clicks when hidden */
-.modal.hidden {
-    display: none !important;
-    pointer-events: none;
-}
-
+/* Ensure modals are on top */
 .modal {
-    pointer-events: auto;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.95);
+    z-index: 9999; /* Very high number */
 }
 
-/* Fix Hero Banner spacing */
-.hero-info {
-    background: linear-gradient(transparent, rgba(0,0,0,0.9));
+.settings-card {
+    background: #1a1a1a;
+    margin: 20% auto;
+    width: 80%;
     padding: 20px;
-    width: 100%;
+    border-radius: 15px;
+    text-align: center;
 }
+
+.icon-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: white;
+    padding: 10px;
+}
+
+.hidden { display: none !important; }
