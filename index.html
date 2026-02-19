@@ -3,41 +3,73 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FENG WORLD Movies</title>
+  <title>FENG WORLD PRO</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
 <header>
-  <h2>🎬 FENG WORLD</h2>
+  <div class="header-top">
+    <h1 class="logo">FE<span>NG</span> WORLD</h1>
+  </div>
+  <div class="search-bar">
+    <input type="text" id="search" placeholder="Search movies or series...">
+  </div>
 </header>
 
-<div id="movies"></div>
+<main id="home-content">
+  <section id="hero-banner" class="hero"></section>
 
-<div id="search-container" class="hidden">
-  <input type="text" id="search" placeholder="Search movies or series...">
+  <section class="row">
+    <h3>TRENDING MOVIES</h3>
+    <div id="trending-movies" class="horizontal-grid"></div>
+  </section>
+
+  <section class="row">
+    <h3>POPULAR SERIES</h3>
+    <div id="popular-series" class="horizontal-grid"></div>
+  </section>
+</main>
+
+<div id="details-page" class="modal hidden">
+  <div class="modal-content">
+    <button id="close-modal" class="close-btn">✕</button>
+    <div id="details-header"></div>
+    
+    <div id="tv-controls" class="hidden">
+      <select id="season-selector"></select>
+      <div id="episode-list"></div>
+    </div>
+
+    <div id="player-section" class="hidden">
+      <iframe id="main-player" allowfullscreen></iframe>
+    </div>
+    
+    <button id="watch-now-btn" class="main-play-btn">WATCH NOW</button>
+  </div>
 </div>
 
-<div id="details" class="hidden">
-  <button id="back-btn">⬅ Back</button>
-  <img id="details-poster" src="" alt="Movie Poster">
-  <h2 id="details-title"></h2>
-  <p id="details-overview"></p>
-  <p><strong>Rating:</strong> <span id="details-rating"></span></p>
-
-  <div id="video-container" class="hidden">
-    <iframe id="video-player" width="100%" height="300" frameborder="0" allowfullscreen></iframe>
-    <button id="close-video">Close Player</button>
+<div id="settings-page" class="modal hidden">
+  <div class="settings-card">
+    <div class="settings-header">
+      <h2>Settings</h2>
+      <button id="close-settings">✕</button>
+    </div>
+    <div class="settings-info">
+      <p><strong>App Version:</strong> 17.2 PRO Platinum</p>
+      <p><strong>Developer:</strong> Felix Nyoka</p>
+      <p><strong>Player:</strong> FENG Vidsrc Engine</p>
+    </div>
+    <button class="btn-refresh">Refresh Database</button>
+    <button class="btn-whatsapp">Contact WhatsApp</button>
   </div>
-
-  <button id="play-btn">▶ Play Trailer</button>
 </div>
 
 <nav class="bottom-nav">
-  <button id="tab-movies" class="active">Movies</button>
-  <button id="tab-series">Series</button>
-  <button id="tab-search">Search</button>
+  <button class="nav-item active" data-tab="home">Home</button>
+  <button class="nav-item" data-tab="movies">Movies</button>
+  <button class="nav-item" data-tab="series">Series</button>
+  <button class="nav-item" data-tab="settings">Settings</button>
 </nav>
 
 <script src="app.js"></script>
