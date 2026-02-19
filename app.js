@@ -1,5 +1,5 @@
-// Replace with your TMDB API key
-const API_KEY = "PUT_YOUR_TMDB_KEY_HERE";
+// Updated with your TMDB API key
+const API_KEY = "ea593c3fa4d4942ece315977cd7e32c9"; 
 const IMG_URL = "https://image.tmdb.org/t/p/w500";
 
 // Elements
@@ -52,8 +52,14 @@ function fetchMovies(type) {
   const url = `https://api.themoviedb.org/3/trending/${type}/week?api_key=${API_KEY}`;
   fetch(url)
     .then(res => res.json())
-    .then(data => showMovies(data.results))
-    .catch(err => console.error(err));
+    .then(data => {
+      if(data.results) {
+        showMovies(data.results);
+      } else {
+        console.error("No results found", data);
+      }
+    })
+    .catch(err => console.error("Fetch error:", err));
 }
 
 // Show movies/series
@@ -64,7 +70,7 @@ function showMovies(list) {
     div.className = "movie";
 
     div.innerHTML = `
-      <img src="${IMG_URL + item.poster_path}">
+      <img src="${item.poster_path ? IMG_URL + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'}">
       <h3>${item.title || item.name}</h3>
     `;
 
@@ -87,7 +93,8 @@ function showDetails(item) {
 
   // Play button embedded
   playBtn.onclick = () => {
-    fetch(`https://api.themoviedb.org/3/${item.media_type || 'movie'}/${item.id}/videos?api_key=${API_KEY}`)
+    const mediaType = item.media_type || (tabMovies.classList.contains("active") ? "movie" : "tv");
+    fetch(`https://api.themoviedb.org/3/${mediaType}/${item.id}/videos?api_key=${API_KEY}`)
       .then(res => res.json())
       .then(data => {
         const trailer = data.results.find(video => video.type === "Trailer" && video.site === "YouTube");
