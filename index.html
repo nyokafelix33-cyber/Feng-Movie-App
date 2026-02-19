@@ -2,18 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>FENG WORLD PRO</title>
   <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#080808">
 </head>
 <body>
 
 <header>
   <div class="header-top">
     <h1 class="logo">FE<span>NG</span> WORLD</h1>
-    <button id="open-settings">⚙️</button>
+    <button id="open-settings-btn" class="icon-btn">⚙️</button>
   </div>
   <div class="search-bar">
     <input type="text" id="search-input" placeholder="Search movies or series...">
@@ -24,7 +22,7 @@
   <section id="hero-banner" class="hero"></section>
 
   <div class="row">
-    <h3>TRENDING MOVIES</h3>
+    <h3 id="row-title">TRENDING MOVIES</h3>
     <div id="trending-movies" class="horizontal-list"></div>
   </div>
 
@@ -34,39 +32,38 @@
   </div>
 </main>
 
+<div id="settings-view" class="modal hidden">
+  <div class="settings-card">
+    <h2>Settings</h2>
+    <p>Version: 17.2 PRO Platinum</p>
+    <p>Developer: Felix Nyoka</p>
+    <hr>
+    <button class="action-btn" onclick="location.reload()">Refresh App</button>
+    <button id="close-settings" class="close-btn">Close</button>
+  </div>
+</div>
+
 <div id="details-view" class="modal hidden">
   <div class="modal-content">
     <button id="close-details" class="close-btn">✕</button>
     <div id="details-header"></div>
-    
     <div id="video-container" class="hidden">
       <iframe id="video-player" frameborder="0" allowfullscreen></iframe>
-      <button id="close-player">Close Player</button>
     </div>
-
     <div id="series-controls" class="hidden">
       <select id="season-select"></select>
       <div id="episode-list"></div>
     </div>
-
     <button id="watch-btn" class="action-btn">WATCH NOW</button>
-    <p id="description"></p>
+    <p id="description" style="padding:15px; color:#ccc"></p>
   </div>
 </div>
 
 <nav class="bottom-nav">
-  <button class="nav-item active" onclick="location.reload()">🏠<br>Home</button>
-  <button class="nav-item">🎬<br>Movies</button>
-  <button class="nav-item">📺<br>Series</button>
+  <button class="nav-item active" id="nav-home">🏠<br>Home</button>
+  <button class="nav-item" id="nav-search">🔍<br>Search</button>
 </nav>
 
 <script src="app.js"></script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js');
-    });
-  }
-</script>
 </body>
 </html>
