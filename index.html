@@ -2,66 +2,65 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>FENG WORLD PRO</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FENG WORLD WEB</title>
   <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
 </head>
 <body>
+
+<div id="loader">🚀 Loading FENG WORLD...</div>
 
 <header>
   <div class="header-top">
     <h1 class="logo">FE<span>NG</span> WORLD</h1>
-    <button id="open-settings-btn" class="icon-btn">⚙️</button>
+    <button id="open-settings-btn">⚙️</button>
   </div>
-  <div class="search-bar">
-    <input type="text" id="search-input" placeholder="Search movies or series...">
+  <div class="search-bar-container">
+    <input type="text" id="search-input" placeholder="Search movies, shows, actors...">
+    <div id="search-results-dropdown" class="hidden"></div>
   </div>
 </header>
 
-<main id="home-view">
-  <section id="hero-banner" class="hero"></section>
+<main id="main-view">
+  <section id="hero-banner" class="hero-slider"></section>
 
   <div class="row">
-    <h3 id="row-title">TRENDING MOVIES</h3>
+    <h3>🔥 TRENDING NOW</h3>
     <div id="trending-movies" class="horizontal-list"></div>
   </div>
 
   <div class="row">
-    <h3>POPULAR SERIES</h3>
+    <h3>📺 POPULAR SERIES</h3>
     <div id="popular-series" class="horizontal-list"></div>
   </div>
 </main>
 
-<div id="settings-view" class="modal hidden">
-  <div class="settings-card">
-    <h2>Settings</h2>
-    <p>Version: 17.2 PRO Platinum</p>
-    <p>Developer: Felix Nyoka</p>
-    <hr>
-    <button class="action-btn" onclick="location.reload()">Refresh App</button>
-    <button id="close-settings" class="close-btn">Close</button>
-  </div>
-</div>
-
 <div id="details-view" class="modal hidden">
   <div class="modal-content">
-    <button id="close-details" class="close-btn">✕</button>
+    <button id="close-details" class="close-btn">✕ CLOSE</button>
     <div id="details-header"></div>
-    <div id="video-container" class="hidden">
-      <iframe id="video-player" frameborder="0" allowfullscreen></iframe>
+    
+    <div id="video-wrapper" class="hidden">
+      <iframe id="video-iframe" src="" allowfullscreen></iframe>
     </div>
-    <div id="series-controls" class="hidden">
-      <select id="season-select"></select>
-      <div id="episode-list"></div>
+
+    <div id="tv-controls" class="hidden">
+      <div class="selector-row">
+        <select id="season-select"></select>
+        <select id="episode-select"></select>
+      </div>
     </div>
-    <button id="watch-btn" class="action-btn">WATCH NOW</button>
-    <p id="description" style="padding:15px; color:#ccc"></p>
+
+    <button id="main-play-btn" class="watch-btn">▶ PLAY NOW</button>
+    <p id="movie-desc"></p>
   </div>
 </div>
 
 <nav class="bottom-nav">
-  <button class="nav-item active" id="nav-home">🏠<br>Home</button>
-  <button class="nav-item" id="nav-search">🔍<br>Search</button>
+  <button class="nav-item active" onclick="location.reload()">🏠<br>Home</button>
+  <button class="nav-item" id="nav-search-btn">🔍<br>Search</button>
+  <button class="nav-item" onclick="alert('FENG WORLD v17.2 Platinum')">💎<br>Pro</button>
 </nav>
 
 <script src="app.js"></script>
