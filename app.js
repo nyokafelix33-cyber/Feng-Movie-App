@@ -1,88 +1,75 @@
 const API_KEY = "ea593c3fa4d4942ece315977cd7e32c9";
-const BASE_IMG = "https://image.tmdb.org/t/p/original";
+const IMG = "https://image.tmdb.org/t/p/original";
 
-// Initialization
 document.addEventListener("DOMContentLoaded", () => {
-  loadHomePage();
-  setupNav();
+    fetchHomeData();
 });
 
-async function loadHomePage() {
-  const trending = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${API_KEY}`);
-  const trendingData = await trending.json();
-  
-  // Set Hero Banner
-  const featured = trendingData.results[0];
-  document.getElementById('hero-banner').style.backgroundImage = `url(${BASE_IMG + featured.backdrop_path})`;
-  document.getElementById('hero-banner').innerHTML = `
-    <h1>${featured.title}</h1>
-    <button onclick="openDetails(${featured.id}, 'movie')" class="main-play-btn">WATCH NOW</button>
-  `;
+async function fetchHomeData() {
+    const mRes = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${API_KEY}`);
+    const mData = await mRes.json();
+    
+    // Set Hero
+    const top = mData.results[0];
+    document.getElementById('hero-banner').style.backgroundImage = `url(${IMG + top.backdrop_path})`;
+    document.getElementById('hero-banner').innerHTML = `<h1>${top.title}</h1>`;
+    
+    renderRows(mData.results, 'trending-movies', 'movie');
 
-  renderRow(trendingData.results, 'trending-movies', 'movie');
-  
-  const series = await fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${API_KEY}`);
-  const seriesData = await series.json();
-  renderRow(seriesData.results, 'popular-series', 'tv');
+    const sRes = await fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${API_KEY}`);
+    const sData = await sRes.json();
+    renderRows(sData.results, 'popular-series', 'tv');
 }
 
-function renderRow(data, elementId, type) {
-  const container = document.getElementById(elementId);
-  container.innerHTML = data.map(item => `
-    <div class="card" onclick="openDetails(${item.id}, '${type}')">
-      <span class="badge">HD</span>
-      <img src="${BASE_IMG + item.poster_path}">
-      <div class="card-info">
-        <strong>${item.title || item.name}</strong>
-        <p>${item.release_date || item.first_air_date} • ${type.toUpperCase()}</p>
-      </div>
-    </div>
-  `).join('');
+function renderRows(items, id, type) {
+    const el = document.getElementById(id);
+    el.innerHTML = items.map(i => `
+        <div class="movie-card" onclick="showDetails(${i.id}, '${type}')">
+            <img src="${IMG + i.poster_path}">
+            <p style="font-size:11px; padding:5px; text-align:center">${i.title || i.name}</p>
+        </div>
+    `).join('');
 }
 
-async function openDetails(id, type) {
-  document.getElementById('details-page').classList.remove('hidden');
-  const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`);
-  const item = await res.json();
-  
-  if (type === 'tv') {
-    document.getElementById('tv-controls').classList.remove('hidden');
-    loadSeasons(id, item.seasons);
-  } else {
-    document.getElementById('tv-controls').classList.add('hidden');
-  }
+async function showDetails(id, type) {
+    document.getElementById('details-view').classList.remove('hidden');
+    const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`);
+    const data = await res.json();
+
+    document.getElementById('details-header').innerHTML = `<img src="${IMG + data.backdrop_path}" style="width:100%"><h2>${data.title || data.name}</h2>`;
+    document.getElementById('description').innerText = data.overview;
+
+    if (type === 'tv') {
+        document.getElementById('series-controls').classList.remove('hidden');
+        const sel = document.getElementById('season-select');
+        sel.innerHTML = data.seasons.map(s => `<option value="${s.season_number}">${s.name}</option>`).join('');
+        sel.onchange = (e) => loadEpisodes(id, e.target.value);
+        loadEpisodes(id, data.seasons[0].season_number);
+    } else {
+        document.getElementById('series-controls').classList.add('hidden');
+        document.getElementById('watch-btn').onclick = () => play(id, 'movie');
+    }
 }
 
-function loadSeasons(seriesId, seasons) {
-  const selector = document.getElementById('season-selector');
-  selector.innerHTML = seasons.map(s => `<option value="${s.season_number}">${s.name}</option>`).join('');
-  
-  selector.onchange = (e) => loadEpisodes(seriesId, e.target.value);
-  loadEpisodes(seriesId, seasons[0].season_number);
+async function loadEpisodes(id, sNum) {
+    const res = await fetch(`https://api.themoviedb.org/3/tv/${id}/season/${sNum}?api_key=${API_KEY}`);
+    const data = await res.json();
+    document.getElementById('episode-list').innerHTML = data.episodes.map(e => `
+        <div class="ep-item" onclick="play(${id}, 'tv', ${sNum}, ${e.episode_number})" style="padding:10px; border-bottom:1px solid #222">
+            EP ${e.episode_number}: ${e.name}
+        </div>
+    `).join('');
 }
 
-async function loadEpisodes(seriesId, seasonNum) {
-  const res = await fetch(`https://api.themoviedb.org/3/tv/${seriesId}/season/${seasonNum}?api_key=${API_KEY}`);
-  const data = await res.json();
-  const list = document.getElementById('episode-list');
-  
-  list.innerHTML = data.episodes.map(ep => `
-    <div class="episode-item" onclick="playMedia('tv', ${seriesId}, ${seasonNum}, ${ep.episode_number})">
-      <p>EP ${ep.episode_number}: ${ep.name}</p>
-    </div>
-  `).join('');
+function play(id, type, s=1, e=1) {
+    const player = document.getElementById('video-container');
+    player.classList.remove('hidden');
+    const url = type === 'movie' ? `https://vidsrc.me/embed/movie?tmdb=${id}` : `https://vidsrc.me/embed/tv?tmdb=${id}&sea=${s}&epi=${e}`;
+    document.getElementById('video-player').src = url;
 }
 
-// Navigation Logic
-function setupNav() {
-  document.querySelectorAll('.nav-item').forEach(btn => {
-    btn.onclick = () => {
-      if(btn.dataset.tab === 'settings') {
-        document.getElementById('settings-page').classList.remove('hidden');
-      }
-    };
-  });
-  
-  document.getElementById('close-settings').onclick = () => document.getElementById('settings-page').classList.add('hidden');
-  document.getElementById('close-modal').onclick = () => document.getElementById('details-page').classList.add('hidden');
-}
+document.getElementById('close-details').onclick = () => {
+    document.getElementById('details-view').classList.add('hidden');
+    document.getElementById('video-player').src = '';
+};
+                     
