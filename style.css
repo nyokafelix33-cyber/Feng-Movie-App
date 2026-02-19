@@ -1,46 +1,51 @@
-/* General */
 body {
-  background: black;
-  color: white;
+  background: #000;
+  color: #fff;
   margin: 0;
-  font-family: Arial, sans-serif;
+  padding-bottom: 70px; /* Space for bottom nav */
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* Header */
 header {
   background: #111;
-  padding: 10px;
+  padding: 15px;
   text-align: center;
-  font-size: 20px;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  border-bottom: 1px solid #333;
 }
 
-/* Movies Grid */
 #movies {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  padding: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 15px;
+  padding: 15px;
 }
 
 .movie {
-  background: #111;
-  border-radius: 10px;
+  background: #1a1a1a;
+  border-radius: 8px;
   overflow: hidden;
-  cursor: pointer;
+  transition: transform 0.2s;
 }
 
 .movie img {
   width: 100%;
-  display: block;
+  aspect-ratio: 2/3;
+  object-fit: cover;
 }
 
 .movie h3 {
-  font-size: 14px;
-  padding: 5px;
+  font-size: 13px;
+  padding: 8px;
+  margin: 0;
   text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-/* Bottom Navigation */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -48,6 +53,7 @@ header {
   display: flex;
   background: #111;
   border-top: 1px solid #333;
+  z-index: 100;
 }
 
 .bottom-nav button {
@@ -55,8 +61,9 @@ header {
   padding: 15px 0;
   background: none;
   border: none;
-  color: white;
-  font-size: 14px;
+  color: #888;
+  font-size: 12px;
+  text-transform: uppercase;
 }
 
 .bottom-nav button.active {
@@ -64,25 +71,22 @@ header {
   font-weight: bold;
 }
 
-/* Search */
 #search-container {
-  padding: 10px;
-  background: #111;
-}
-
-#search-container.hidden {
-  display: none;
+  padding: 15px;
+  position: sticky;
+  top: 60px;
+  background: #000;
 }
 
 #search {
   width: 100%;
-  padding: 10px;
-  border-radius: 20px;
-  border: none;
-  outline: none;
+  padding: 12px;
+  border-radius: 25px;
+  border: 1px solid #444;
+  background: #222;
+  color: #fff;
 }
 
-/* Movie Details Page */
 #details {
   position: fixed;
   top: 0;
@@ -90,58 +94,15 @@ header {
   width: 100%;
   height: 100%;
   background: #000;
-  color: white;
-  overflow-y: auto;
   padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  z-index: 100;
+  box-sizing: border-box;
+  z-index: 200;
+  overflow-y: auto;
 }
 
-#details.hidden {
-  display: none;
-}
+.hidden { display: none !important; }
 
-#details img {
-  width: 50%;
-  border-radius: 10px;
-  margin-bottom: 20px;
-}
-
-#details h2 {
-  margin: 10px 0;
-}
-
-#details p {
-  text-align: center;
-  margin-bottom: 10px;
-}
-
+#details img { width: 200px; border-radius: 10px; display: block; margin: 0 auto; }
 #back-btn, #play-btn, #close-video {
-  padding: 10px 20px;
-  margin: 10px;
-  background: orange;
-  border: none;
-  border-radius: 20px;
-  color: black;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-/* Video Player */
-#video-container {
-  width: 100%;
-  margin: 10px 0;
-}
-
-#video-container.hidden {
-  display: none;
-}
-
-#video-player {
-  width: 100%;
-  height: 300px;
-  border-radius: 10px;
-  border: none;
+  background: orange; border: none; padding: 10px 20px; border-radius: 5px; font-weight: bold; margin: 10px 0;
 }
