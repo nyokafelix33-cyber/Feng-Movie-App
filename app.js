@@ -1,40 +1,95 @@
 const API_KEY = "ea593c3fa4d4942ece315977cd7e32c9";
-const IMG = "https://image.tmdb.org/t/p/w500";
+const IMG = "https://image.tmdb.org/t/p/original";
 
-// Wait for the app to be fully ready
+// State management
+let trendingData = [];
+let currentHeroIndex = 0;
+
 window.onload = () => {
-    console.log("App started!");
-    fetchHomeData();
+    initApp();
 };
 
-async function fetchHomeData() {
+async function initApp() {
     try {
-        const mRes = await fetch(`https://api.themoviedb.org/3/trending/movie/week?api_key=${API_KEY}`);
+        // 1. Fetch Data
+        const mRes = await fetch(`https://api.themoviedb.org/3/trending/all/week?api_key=${API_KEY}`);
         const mData = await mRes.json();
-        
-        if(mData.results && mData.results.length > 0) {
-            renderHero(mData.results[0]);
-            renderRows(mData.results, 'trending-movies', 'movie');
-        }
+        trendingData = mData.results;
 
+        // 2. Start Slider
+        startHeroSlider();
+
+        // 3. Render Rows
+        renderRows(trendingData, 'trending-movies', 'movie');
+        
         const sRes = await fetch(`https://api.themoviedb.org/3/tv/popular?api_key=${API_KEY}`);
         const sData = await sRes.json();
         renderRows(sData.results, 'popular-series', 'tv');
+
+        // 4. Activate Buttons & Search
+        setupEventListeners();
+
     } catch (err) {
-        alert("Connection Error: Check internet");
+        console.error("Initialization failed", err);
     }
 }
 
-function renderHero(item) {
+// --- SLIDER LOGIC ---
+function startHeroSlider() {
     const banner = document.getElementById('hero-banner');
-    if (!banner) return;
-    banner.style.backgroundImage = `url(${IMG + item.backdrop_path})`;
-    banner.innerHTML = `
-        <div class="hero-info">
-            <h1>${item.title || item.name}</h1>
-            <button class="action-btn" style="width:150px" onclick="showDetails(${item.id}, 'movie')">WATCH NOW</button>
-        </div>
-    `;
+    if (!banner || trendingData.length === 0) return;
+
+    const updateHero = () => {
+        const item = trendingData[currentHeroIndex];
+        banner.style.backgroundImage = `linear-gradient(to top, #080808, transparent), url(${IMG + item.backdrop_path})`;
+        banner.innerHTML = `
+            <div class="hero-info" style="padding: 20px; position: absolute; bottom: 0;">
+                <h1 style="font-size: 28px; margin:0">${item.title || item.name}</h1>
+                <button class="action-btn" onclick="showDetails(${item.id}, '${item.media_type || 'movie'}')">WATCH NOW</button>
+            </div>
+        `;
+        currentHeroIndex = (currentHeroIndex + 1) % 5; // Slide top 5 items
+    };
+
+    updateHero();
+    setInterval(updateHero, 5000); // Change slide every 5 seconds
+}
+
+// --- SEARCH & NAV LOGIC ---
+function setupEventListeners() {
+    // Search Functionality
+    const searchInput = document.getElementById('search-input');
+    searchInput.addEventListener('input', async (e) => {
+        const query = e.target.value.trim();
+        if (query.length > 2) {
+            const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`);
+            const data = await res.json();
+            renderRows(data.results, 'trending-movies', 'movie');
+            document.querySelector('.row h3').innerText = "SEARCH RESULTS";
+            document.getElementById('hero-banner').style.display = "none";
+        } else if (query.length === 0) {
+            document.getElementById('hero-banner').style.display = "flex";
+            renderRows(trendingData, 'trending-movies', 'movie');
+            document.querySelector('.row h3').innerText = "TRENDING MOVIES";
+        }
+    });
+
+    // Bottom Navigation Buttons
+    const navItems = document.querySelectorAll('.nav-item');
+    navItems.forEach(item => {
+        item.addEventListener('click', function() {
+            navItems.forEach(i => i.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Basic Tab Switching
+            const view = this.innerText.toLowerCase();
+            if (view.includes("home")) {
+                location.reload(); 
+            } else if (view.includes("settings")) {
+                alert("Settings coming soon!");
+            }
+        });
+    });
 }
 
 function renderRows(items, id, type) {
@@ -42,35 +97,10 @@ function renderRows(items, id, type) {
     if (!el) return;
     el.innerHTML = items.map(i => `
         <div class="movie-card" onclick="showDetails(${i.id}, '${type}')">
-            <img src="${IMG + i.poster_path}" loading="lazy">
-            <div class="card-title">${i.title || i.name}</div>
+            <img src="${IMG + i.poster_path}" onerror="this.src='https://via.placeholder.com/150x225?text=No+Image'">
+            <p style="font-size:11px; padding:5px; margin:0; text-align:center">${i.title || i.name}</p>
         </div>
     `).join('');
 }
 
-async function showDetails(id, type) {
-    const view = document.getElementById('details-view');
-    view.classList.remove('hidden');
-    // Force the modal to the top
-    view.scrollTo(0, 0);
-
-    const res = await fetch(`https://api.themoviedb.org/3/${type}/${id}?api_key=${API_KEY}`);
-    const data = await res.json();
-
-    document.getElementById('details-header').innerHTML = `
-        <img src="${IMG + data.backdrop_path}" style="width:100%; border-radius:0 0 20px 20px">
-        <h2 style="padding:0 15px">${data.title || data.name}</h2>
-    `;
-    document.getElementById('description').innerText = data.overview;
-
-    const watchBtn = document.getElementById('watch-btn');
-    if (type === 'tv') {
-        document.getElementById('series-controls').classList.remove('hidden');
-        setupTV(id, data.seasons);
-    } else {
-        document.getElementById('series-controls').classList.add('hidden');
-        watchBtn.onclick = () => play(id, 'movie');
-    }
-}
-
-// ... (Rest of play and close functions remain same as previous)
+// ... Keep your showDetails, loadEpisodes, and play functions from the previous version ...
