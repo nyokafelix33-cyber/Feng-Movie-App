@@ -1,138 +1,104 @@
-// Updated with your TMDB API key
 const API_KEY = "ea593c3fa4d4942ece315977cd7e32c9"; 
 const IMG_URL = "https://image.tmdb.org/t/p/w500";
 
-// Elements
 const moviesDiv = document.getElementById("movies");
 const searchContainer = document.getElementById("search-container");
 const searchInput = document.getElementById("search");
-const tabMovies = document.getElementById("tab-movies");
-const tabSeries = document.getElementById("tab-series");
-const tabSearch = document.getElementById("tab-search");
-
-const detailsDiv = document.getElementById("details");
-const backBtn = document.getElementById("back-btn");
-const detailsPoster = document.getElementById("details-poster");
-const detailsTitle = document.getElementById("details-title");
-const detailsOverview = document.getElementById("details-overview");
-const detailsRating = document.getElementById("details-rating");
-const playBtn = document.getElementById("play-btn");
-const videoContainer = document.getElementById("video-container");
-const videoPlayer = document.getElementById("video-player");
-const closeVideo = document.getElementById("close-video");
-
-// Tab click events
-tabMovies.addEventListener("click", () => switchTab("movies"));
-tabSeries.addEventListener("click", () => switchTab("series"));
-tabSearch.addEventListener("click", () => switchTab("search"));
-
-// Default tab
-switchTab("movies");
-
-function switchTab(tab) {
-  [tabMovies, tabSeries, tabSearch].forEach(b => b.classList.remove("active"));
-
-  if (tab === "movies") {
-    tabMovies.classList.add("active");
-    searchContainer.classList.add("hidden");
-    fetchMovies("movie");
-  } else if (tab === "series") {
-    tabSeries.classList.add("active");
-    searchContainer.classList.add("hidden");
-    fetchMovies("tv");
-  } else if (tab === "search") {
-    tabSearch.classList.add("active");
-    searchContainer.classList.remove("hidden");
-    moviesDiv.innerHTML = "";
-  }
-}
-
-// Fetch movies or series
-function fetchMovies(type) {
-  const url = `https://api.themoviedb.org/3/trending/${type}/week?api_key=${API_KEY}`;
-  fetch(url)
-    .then(res => res.json())
-    .then(data => {
-      if(data.results) {
-        showMovies(data.results);
-      } else {
-        console.error("No results found", data);
-      }
-    })
-    .catch(err => console.error("Fetch error:", err));
-}
-
-// Show movies/series
-function showMovies(list) {
-  moviesDiv.innerHTML = "";
-  list.forEach(item => {
-    const div = document.createElement("div");
-    div.className = "movie";
-
-    div.innerHTML = `
-      <img src="${item.poster_path ? IMG_URL + item.poster_path : 'https://via.placeholder.com/500x750?text=No+Image'}">
-      <h3>${item.title || item.name}</h3>
-    `;
-
-    div.addEventListener("click", () => showDetails(item));
-    moviesDiv.appendChild(div);
-  });
-}
-
-// Show movie details
-function showDetails(item) {
-  moviesDiv.style.display = "none";
-  searchContainer.classList.add("hidden");
-  detailsDiv.classList.remove("hidden");
-  videoContainer.classList.add("hidden");
-
-  detailsPoster.src = IMG_URL + item.poster_path;
-  detailsTitle.textContent = item.title || item.name;
-  detailsOverview.textContent = item.overview;
-  detailsRating.textContent = item.vote_average;
-
-  // Play button embedded
-  playBtn.onclick = () => {
-    const mediaType = item.media_type || (tabMovies.classList.contains("active") ? "movie" : "tv");
-    fetch(`https://api.themoviedb.org/3/${mediaType}/${item.id}/videos?api_key=${API_KEY}`)
-      .then(res => res.json())
-      .then(data => {
-        const trailer = data.results.find(video => video.type === "Trailer" && video.site === "YouTube");
-        if (trailer) {
-          videoPlayer.src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1`;
-          videoContainer.classList.remove("hidden");
-        } else {
-          alert("Trailer not available");
-        }
-      });
-  };
-}
-
-// Close video
-closeVideo.onclick = () => {
-  videoPlayer.src = "";
-  videoContainer.classList.add("hidden");
+const tabs = {
+    movies: document.getElementById("tab-movies"),
+    series: document.getElementById("tab-series"),
+    search: document.getElementById("tab-search")
 };
 
-// Back button
-backBtn.addEventListener("click", () => {
-  detailsDiv.classList.add("hidden");
-  moviesDiv.style.display = "grid";
-  videoPlayer.src = "";
-  videoContainer.classList.add("hidden");
+const detailsDiv = document.getElementById("details");
+const videoPlayer = document.getElementById("video-player");
 
-  if (tabSearch.classList.contains("active")) {
-    searchContainer.classList.remove("hidden");
+// Initialization
+document.addEventListener("DOMContentLoaded", () => {
+    switchTab("movies");
+});
+
+function switchTab(type) {
+    Object.values(tabs).forEach(tab => tab.classList.remove("active"));
+    tabs[type].classList.add("active");
+
+    if (type === "search") {
+        searchContainer.classList.remove("hidden");
+        moviesDiv.innerHTML = "<p style='text-align:center'>Type something to search...</p>";
+    } else {
+        searchContainer.classList.add("hidden");
+        fetchData(type === "movies" ? "movie" : "tv");
+    }
+}
+
+async function fetchData(type) {
+    moviesDiv.innerHTML = "<p style='text-align:center'>Loading...</p>";
+    try {
+        const response = await fetch(`https://api.themoviedb.org/3/trending/${type}/week?api_key=${API_KEY}`);
+        const data = await response.json();
+        if (data.results) {
+            showMovies(data.results);
+        } else {
+            alert("API Error: Check your key.");
+        }
+    } catch (error) {
+        console.error(error);
+        alert("Connection Error. Are you online?");
+    }
+}
+
+function showMovies(list) {
     moviesDiv.innerHTML = "";
-  }
-});
+    list.forEach(item => {
+        const movieEl = document.createElement("div");
+        movieEl.className = "movie";
+        const title = item.title || item.name;
+        const poster = item.poster_path ? IMG_URL + item.poster_path : "https://via.placeholder.com/500x750?text=No+Image";
+        
+        movieEl.innerHTML = `
+            <img src="${poster}" alt="${title}">
+            <h3>${title}</h3>
+        `;
+        movieEl.onclick = () => showDetails(item);
+        moviesDiv.appendChild(movieEl);
+    });
+}
 
-// Search functionality
-searchInput.addEventListener("keyup", (e) => {
-  const query = e.target.value.trim();
-  if (!query) return;
-  fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${encodeURIComponent(query)}`)
-    .then(res => res.json())
-    .then(data => showMovies(data.results))
-    .catch(err => console.error(err));
-});
+function showDetails(item) {
+    detailsDiv.classList.remove("hidden");
+    document.getElementById("details-poster").src = IMG_URL + item.poster_path;
+    document.getElementById("details-title").textContent = item.title || item.name;
+    document.getElementById("details-overview").textContent = item.overview;
+    document.getElementById("details-rating").textContent = item.vote_average;
+
+    document.getElementById("play-btn").onclick = async () => {
+        const type = item.title ? "movie" : "tv";
+        const res = await fetch(`https://api.themoviedb.org/3/${type}/${item.id}/videos?api_key=${API_KEY}`);
+        const videoData = await res.json();
+        const trailer = videoData.results.find(v => v.type === "Trailer");
+        if (trailer) {
+            videoPlayer.src = `https://www.youtube.com/embed/${trailer.key}?autoplay=1`;
+            document.getElementById("video-container").classList.remove("hidden");
+        } else {
+            alert("No trailer found.");
+        }
+    };
+}
+
+document.getElementById("back-btn").onclick = () => detailsDiv.classList.add("hidden");
+document.getElementById("close-video").onclick = () => {
+    videoPlayer.src = "";
+    document.getElementById("video-container").classList.add("hidden");
+};
+
+tabs.movies.onclick = () => switchTab("movies");
+tabs.series.onclick = () => switchTab("series");
+tabs.search.onclick = () => switchTab("search");
+
+searchInput.oninput = async (e) => {
+    const query = e.target.value;
+    if (query.length < 2) return;
+    const res = await fetch(`https://api.themoviedb.org/3/search/multi?api_key=${API_KEY}&query=${query}`);
+    const data = await res.json();
+    showMovies(data.results);
+};
