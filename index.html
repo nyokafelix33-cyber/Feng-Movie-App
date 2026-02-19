@@ -4,11 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FENG WORLD Movies</title>
-
-  <!-- CSS -->
   <link rel="stylesheet" href="style.css">
-
-  <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
@@ -17,15 +13,12 @@
   <h2>🎬 FENG WORLD</h2>
 </header>
 
-<!-- Main Content -->
-<main id="movies"></main>
+<div id="movies"></div>
 
-<!-- Search Input -->
 <div id="search-container" class="hidden">
   <input type="text" id="search" placeholder="Search movies or series...">
 </div>
 
-<!-- Movie Details Page -->
 <div id="details" class="hidden">
   <button id="back-btn">⬅ Back</button>
   <img id="details-poster" src="" alt="Movie Poster">
@@ -33,7 +26,6 @@
   <p id="details-overview"></p>
   <p><strong>Rating:</strong> <span id="details-rating"></span></p>
 
-  <!-- Embedded video player -->
   <div id="video-container" class="hidden">
     <iframe id="video-player" width="100%" height="300" frameborder="0" allowfullscreen></iframe>
     <button id="close-video">Close Player</button>
@@ -42,27 +34,12 @@
   <button id="play-btn">▶ Play Trailer</button>
 </div>
 
-<!-- Bottom Navigation -->
 <nav class="bottom-nav">
   <button id="tab-movies" class="active">Movies</button>
   <button id="tab-series">Series</button>
   <button id="tab-search">Search</button>
 </nav>
 
-<!-- JS -->
 <script src="app.js"></script>
-
-<!-- Service Worker -->
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker
-      .register("sw.js")
-      .then((reg) => console.log("SW registered:", reg))
-      .catch((err) => console.log("SW registration failed:", err));
-  });
-}
-</script>
-
 </body>
 </html>
